@@ -30,10 +30,10 @@ const App = () => {
         <People />  
       </ProtectedRoute>
         } /> {/* Default content */}
-      <Route path="profile/update" element={ <ProtectedRoute>
+       <Route path="profile/update" element={ <ProtectedRoute>
         <ProfileUpdate />
       </ProtectedRoute>
-        } />
+        } /> 
         <Route path="profile/user" element={ <ProtectedRoute>
         <ProfilePage />
       </ProtectedRoute>

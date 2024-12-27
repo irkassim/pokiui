@@ -15,10 +15,12 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
       <BrowserRouter>
-    {/* <FeaturesProvider> */}   
-      <AuthProvider>
+    {/* <FeaturesProvider> */}  
+    <UsersProvider>
+    <AuthProvider>
       <App />
-      </AuthProvider>
+      </AuthProvider> 
+      </UsersProvider> 
       {/* <FeaturesProvider> */}  
       </BrowserRouter>
      

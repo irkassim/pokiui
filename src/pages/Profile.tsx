@@ -12,8 +12,16 @@ import  GeneralModal from '../components/GeneralModal';
 const ProfilePage: React.FC = () => {
   //const { user } = useContext(UsersContext);
   const [user, setUser] = useState<any>(null);
+  //const [theData, setTheData] = useState<any>(null);
   //const [showLocationModal, setShowLocationModal] = useState(true);
-
+   /* const [bio, setBio] = useState<string>('');
+   const [firstName, setFirstName] = useState<string>('');
+   const [lastName, setLastName] = useState<string>('');
+   const [email, setEmail] = useState<string>('');
+    const [avatar, setAvatar] = useState<File | null>(null);
+    const [preference, setPreference] = useState<string>('Everyone'); // New state
+    const [gender, setGender] = useState<string>('Male'); // New state
+ */
   const publicImages = [
     '/image1.jpg',
     '/image2.jpg',
@@ -46,8 +54,11 @@ const ProfilePage: React.FC = () => {
         try {
           const response = await axios.post('http://localhost:5000/api/profile/user', 
             { refreshToken }, // Send in the body
-            {headers: { Authorization: `Bearer ${accessToken}` },});
-          setUser(response.data);   
+            {headers: { Authorization: `Bearer ${accessToken}` },
+            withCredentials: true,   });
+          //setTheData(response.data); 
+          const { user } = response.data;
+          setUser(user)  
           console.log("Response Data",response.data)
         } catch (err) {
           console.error('Error fetching user:', err);
@@ -58,9 +69,12 @@ const ProfilePage: React.FC = () => {
     fetchUser();
   }, []);
         
-  if(user){
-    console.log(user)
-  }
+  user && console.log(user.firstName, user.bio, user.avatarUrl)
+  
+
+  //construct image URL
+  //user.avatarUrl = `https://pokistorage.s3.eu-central-1.amazonaws.com/${user.avatar}`;
+
 
   //HandledragTinder
   const handleDragEnd = (
@@ -96,7 +110,7 @@ const ProfilePage: React.FC = () => {
           <div
             className="bg-white shadow-lg rounded-lg flex items-center justify-center"
             style={{
-              backgroundImage: `url(${image.src})`,
+              backgroundImage: `url(${user.avatarUrl})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               height: '400px',
@@ -117,12 +131,12 @@ const ProfilePage: React.FC = () => {
       exit={{ opacity: 0 }}
     >
   {/* Profile Details */}
-  <div className="profile text-center p-4">
+  {user &&(<div className="profile text-center p-4">
     <h1 className="text-xl font-bold">{user?.firstName} {user?.lastName}</h1>
-     {user?.avatar ? (
+     {user.avatarUrl ? (
       <img
      
-       src={`http://localhost:5000/${user.avatar}`}
+       src={`${user.avatarUrl}`}
      
         alt={`${user?.firstName}'s avatar`}
         className="w-32 h-32 rounded-full shadow-lg my-4"
@@ -130,12 +144,12 @@ const ProfilePage: React.FC = () => {
     ) : (
       <p className="text-sm text-gray-500">No avatar available</p>
     )} 
-  </div>
+  </div>)}
 
   {/* Bio or Additional Info */}
-  <div className="text-sm text-gray-600">
-    <p>{user?.bio || 'No bio available'}</p>
-  </div>
+  {user &&(<div className="text-sm text-gray-600">
+    <p>{user.bio} </p>
+  </div>)}
 </motion.div>
 
   </div>
@@ -146,21 +160,21 @@ const ProfilePage: React.FC = () => {
 
 
     {/* Relevant Section */}
-    <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6 ">
+    {user && (<div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6 ">
       <h2 className="text-xl font-bold mb-2">Relevant</h2>
       <p><strong>Bio:</strong> {user.bio}</p>
       <p><strong>Occupation:</strong> Software Developer</p>
       <p><strong>Location:</strong> New York, USA</p>
-    </div>
+    </div>)}
 
     {/* Interest Section */}
-    <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
+   {user &&( <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
       <h2 className="text-xl font-bold mb-2">Interests</h2>
       <p><strong>Zodiac Sign:</strong> Scorpio</p>
       <p><strong>Favorite Movies:</strong> Inception, The Dark Knight</p>
       <p><strong>Favorite Music:</strong> Jazz, Pop</p>
       <p><strong>Hobbies:</strong> Painting, Reading</p>
-    </div>
+    </div>)}
 
     {/* Memories Section */}
     <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
