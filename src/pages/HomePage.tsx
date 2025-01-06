@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import LocationModal from '../components/LocationModal';
+//import LocationModal from '../components/LocationModal';
 import { Navigate } from 'react-router-dom';
 //import { useAuth } from '../context/AuthContext';
 
@@ -12,7 +12,7 @@ interface User {
 }
 
 const HomePage: React.FC = () => {
-  const [isLocationModalOpen, setLocationModalOpen] = useState(true);
+ // const [isLocationModalOpen, setLocationModalOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'matches' | 'pokes' | 'messages'>('matches');
   const [leftPaneWidth, setLeftPaneWidth] = useState(25); // Left pane width in percentage
   const navigate = useNavigate()
@@ -32,7 +32,7 @@ const HomePage: React.FC = () => {
     { id: 5, name: 'Eve', avatar: '/path/to/avatar5.jpg', lastMessage: 'Hello there!' },
     { id: 6, name: 'Frank', avatar: '/path/to/avatar6.jpg', lastMessage: 'Are we meeting?' },
   ];
-  const closeModal = () => setLocationModalOpen(false);
+ // const closeModal = () => setLocationModalOpen(false);
  /*  const { isAuthenticated } = useAuth();
   console.log(isAuthenticated)
 
@@ -172,11 +172,11 @@ const HomePage: React.FC = () => {
           }}
         ></div>
       </div>
-      {isLocationModalOpen && <LocationModal onClose={closeModal} />}
+     {/*  {isLocationModalOpen && <LocationModal onClose={closeModal} />} */}
 
       {/* Right Pane (Outlet for Other Pages) */}
       <div className="flex-1 bg-white">
-      {!isLocationModalOpen &&  <Outlet />}
+               <Outlet />
        
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState,useContext } from 'react';
 import { motion, PanInfo } from 'framer-motion';
 import { FaBolt, FaMapMarkerAlt } from 'react-icons/fa'; // Icons for Boost and Explore
 import { FeaturesContext } from '../context/FeaturesContext';
+import LocationModal from '../components/LocationModal';
 
 const People: React.FC = () => {
   const [users, setUsers] = useState([
@@ -9,6 +10,8 @@ const People: React.FC = () => {
     { id: 2, name: 'Bob', avatar: '/path/to/avatar2.jpg', bio: 'Tech enthusiast and gamer' },
     { id: 3, name: 'Charlie', avatar: '/path/to/avatar3.jpg', bio: 'Dog lover and foodie' },
   ]);
+  const [isLocationModalOpen, setLocationModalOpen] = useState(true);
+  const closeModal = () => setLocationModalOpen(false);
 
   /*  const { matches, setMatches,
      pokes, setPokes, exploreStatus, 
@@ -83,6 +86,7 @@ const People: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
       <h1 className="text-3xl font-bold my-4">Meet People</h1>
+      {isLocationModalOpen && <LocationModal onClose={closeModal} />}
 
       {/* Card Stack */}
       <div className="relative w-full flex items-center justify-center mt-4" style={{ height: '500px' }}>
@@ -138,6 +142,7 @@ const People: React.FC = () => {
           <FaMapMarkerAlt size={24} />
         </button>
       </div>
+     
     </div>
   );
 };

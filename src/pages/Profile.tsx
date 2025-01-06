@@ -22,12 +22,7 @@ const ProfilePage: React.FC = () => {
     const [preference, setPreference] = useState<string>('Everyone'); // New state
     const [gender, setGender] = useState<string>('Male'); // New state
  */
-  const publicImages = [
-    '/image1.jpg',
-    '/image2.jpg',
-    '/image3.jpg',
-    '/image4.jpg',
-  ]; // Example public images
+
   const images = [
     { id: 1, src: '/images/img1.jpg' },
     { id: 2, src: '/images/img2.jpg' },

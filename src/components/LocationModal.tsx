@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 const LocationModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+ 
   const requestLocation = () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser.');
@@ -16,43 +16,52 @@ const LocationModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       (position) => {
         const { latitude, longitude } = position.coords;
         setLocation({ lat: latitude, lng: longitude });
-        
-        console.log("local storage userId:",localStorage.getItem('token'))
-        //const token = localStorage.getItem('token')
+    
+        const formattedLocation = {
+          type: "Point",
+          coordinates: [longitude, latitude], // Longitude first, then latitude
+        };
+    
+        console.log("Formatted Location:", formattedLocation);
+    
         const refreshToken = localStorage.getItem('refreshToken');
         const accessToken = localStorage.getItem('accessToken');
-         // Decode the token to extract userId
-                // const decoded: { id: string } = jwtDecode(token);
-        //const theUser = localStorage.setItem('userId', decoded.id)
-        //console.log('Token:', token);
-                  console.log('Headers:', {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}` });
-
+    
+        console.log('Headers:', {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        });
+    
         // Send location to backend
         fetch('http://localhost:5000/api/location/update', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`
-           },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({
-            refreshToken ,
-            latitude, longitude }),
+            refreshToken,
+            location: formattedLocation,
+          }),
         })
           .then((response) => {
             if (!response.ok) throw new Error('Failed to send location');
-            return response.json();
+            return response.json(); // Ensure this is returned
           })
           .then((data) => {
-            console.log('Location saved:', data);
+            console.log('Location saved successfully:', data);
             onClose(); // Close the modal
           })
-          .catch((err) => setError('Failed to send location to server.'));
+          .catch((err) => {
+            console.error('Error saving location:', err);
+            setError('Failed to send location to server.');
+          });
       },
       (err) => {
         setError('Failed to fetch your location. Please try again.');
       }
     );
+    
   };
 
   return (
