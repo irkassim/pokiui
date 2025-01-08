@@ -30,7 +30,7 @@ export const UsersProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   //const { photos: userPhotos, setPhotos: setUserPhotos } = useFetchPhotos(accessToken, refreshToken)
    const { photos, setPhotos } = useFetchPhotos(
     localStorage.getItem('accessToken'),
-    localStorage.getItem('refreshToken'),shldFetchPhotos
+    localStorage.getItem('refreshToken')
   ); 
   
   const fetchPhotos = async () => {
@@ -46,11 +46,11 @@ export const UsersProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  useEffect(() => {
+ /*  useEffect(() => {
     if (!accessToken || !refreshToken) {
       navigate('/login');
     }
-  }, [accessToken, refreshToken]);
+  }, [accessToken, refreshToken]); */
 
   /* useEffect(() => {
     if (shldFetchPhotos) {

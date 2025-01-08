@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-//import LocationModal from '../components/LocationModal';
-import { Navigate } from 'react-router-dom';
-//import { useAuth } from '../context/AuthContext';
+import { useFetchUser, useFetchPhotos } from '../hooks/useFetch';
+import useFetchActivity from '../hooks/useFetchActivity';
 
 interface User {
   id: number;
@@ -12,104 +11,96 @@ interface User {
 }
 
 const HomePage: React.FC = () => {
- // const [isLocationModalOpen, setLocationModalOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'matches' | 'pokes' | 'messages'>('matches');
   const [leftPaneWidth, setLeftPaneWidth] = useState(25); // Left pane width in percentage
-  const navigate = useNavigate()
-  // Mock user data
-  const currentUser = { id: 1, firstName: 'John', avatar: '/path/to/avatar.jpg' };
-  const matches: User[] = [
-    { id: 1, name: 'Alice', avatar: '/path/to/avatar1.jpg' },
-    { id: 2, name: 'Bob', avatar: '/path/to/avatar2.jpg' },
-  ];
+  const refreshToken = localStorage.getItem('refreshToken');
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
+ /*  const [matches, setMatches] = useState<any[]>([]);
+  const [pokes, setPokes] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]); */
+  const navigate = useNavigate();
 
-  const pokes: User[] = [
-    { id: 3, name: 'Charlie', avatar: '/path/to/avatar3.jpg' },
-    { id: 4, name: 'Diana', avatar: '/path/to/avatar4.jpg' },
-  ];
+  const accessToken = localStorage.getItem('accessToken');
+  const { user, setUser, loading } = useFetchUser(accessToken, refreshToken);
+  const { photos, setPhotos } = useFetchPhotos(accessToken, refreshToken);
+  const { matches, pokes, messages, loadingActivities, error } = useFetchActivity(accessToken);
 
-  const messages: User[] = [
-    { id: 5, name: 'Eve', avatar: '/path/to/avatar5.jpg', lastMessage: 'Hello there!' },
-    { id: 6, name: 'Frank', avatar: '/path/to/avatar6.jpg', lastMessage: 'Are we meeting?' },
-  ];
- // const closeModal = () => setLocationModalOpen(false);
- /*  const { isAuthenticated } = useAuth();
-  console.log(isAuthenticated)
+  user && console.log("homeboy:", user)
+  photos && console.log("homephotos:", photos)
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />; // Redirect logged-in users to the homepage
-  } */
-  const renderContent = () => {
-    if (activeTab === 'matches') {
-      return matches.map((user) => (
-        <div key={user.id} className="flex items-center p-2">
-          <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full mr-2" />
-          <span>{user.name}</span>
-        </div>
-      ));
+  // Fetch matches, pokes, and messages
+
+  pokes && console.log("Pokes:", pokes)
+  matches && console.log("matches:", matches )
+  // Set avatar URL based on user's avatar
+  useEffect(() => {
+    if (user && photos.length > 0) {
+      const avatarPhoto = photos.find((photo) => photo._id === user.avatar);
+      if (avatarPhoto) {
+        setAvatarUrl(avatarPhoto.src);
+      } else {
+        setAvatarUrl(undefined);
+      }
     }
+  }, [user, photos]);
 
-    if (activeTab === 'pokes') {
-      return pokes.map((user) => (
-        <div key={user.id} className="flex items-center p-2">
-          <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full mr-2" />
-          <span>{user.name}</span>
-        </div>
-      ));
-    }
-
-    if (activeTab === 'messages') {
-      return messages.map((user) => (
-        <div key={user.id} className="flex items-center p-2">
-          <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full mr-2" />
-          <div>
-            <p>{user.name}</p>
-            <p className="text-gray-500 text-sm">{user.lastMessage}</p>
-          </div>
-        </div>
-      ));
-    }
-
-    return null;
-  };
-
-  const handleDragStart = (e: MouseEvent) => {
-    // Prevent text selection during drag
-    e.preventDefault();
-  
-    // Add mousemove and mouseup listeners to the document
-    const onMouseMove = (event: MouseEvent) => {
-      const newWidth = ((event.clientX / window.innerWidth) * 100).toFixed(2);
-      setLeftPaneWidth(Math.min(Math.max(Number(newWidth), 20), 40)); // Clamp width between 20% and 40%
-    };
-  
-    const onMouseUp = () => {
-      // Remove event listeners when dragging stops
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-  
-    // Add event listeners to track mouse movement
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  };
-  
-  // Attach to the onMouseDown handler
-  const startDrag = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent browser default behaviors
-    document.addEventListener('mousemove', handleDragStart); // Use native MouseEvent
-    document.addEventListener('mouseup', () => {
-      document.removeEventListener('mousemove', handleDragStart);
-    });
-  };
-  
-  //Signout
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     navigate('/login');
   };
-  
+
+  if (loadingActivities) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  const renderContent = () => {
+    const renderGrid = (data: any[], emptyMessage: string, isMatch = false, user?: any) => (
+      <div className="grid grid-cols-3 gap-4">
+        {data.length > 0 ? (
+          data.map((item) => {
+            const userItem = isMatch ? item.users.find((u:any) => u._id !== user?.id) : item.poker;
+            const avatar = Array.isArray(userItem.avatar) ? userItem.avatar[0] : userItem.avatar;
+    
+            return (
+              <div  onClick={() => navigate(`/profile/user/${userItem?._id}`)}
+              key={item._id} className="flex flex-col items-center p-2 border rounded">
+                <img
+                  src={avatar || '/path/to/placeholder.jpg'}
+                  alt={userItem.firstName || 'Unknown'}
+                  className="w-20 h-20 rounded-full mb-2"
+                />
+                <span className="font-medium">{userItem.firstName}</span>
+                {item.status === 'pending' && (
+                  <span className="text-yellow-500 text-sm">Pending</span>
+                )}
+                {item.status === 'accepted' && (
+                  <span className="text-green-500 text-sm">Accepted</span>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-center col-span-3 text-gray-500">{emptyMessage}</p>
+        )}
+      </div>
+    );
+    
+    
+
+    if (activeTab === 'matches') {
+      return renderGrid(matches, 'No matches right now', true,user);
+    }
+
+    if (activeTab === 'pokes') {
+      return renderGrid(pokes, 'No pokes right now', false, user);
+    }
+
+    if (activeTab === 'messages') {
+      return renderGrid(messages, 'No messages right now',false, user);
+    }
+
+    return null;
+  };
 
   return (
     <div className="flex h-screen">
@@ -120,20 +111,21 @@ const HomePage: React.FC = () => {
       >
         {/* Top Bar */}
         <div className="p-4 bg-white shadow flex items-center justify-between">
-         <div className="flex items-center space-x-2">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.firstName}
-              className="w-8 h-8 rounded-full"
-            />
-            <span className="font-medium">{currentUser.firstName}</span>
+          <div className="flex items-center space-x-2">
+            {avatarUrl && user && (
+              <img
+                src={avatarUrl}
+                alt={user?.firstName || 'User'}
+                className="w-8 h-8 rounded-full"
+              />
+            )}
+            <span className="font-medium">{user?.firstName}</span>
           </div>
-          <button onClick={handleLogout} className="text-red-500 font-bold ml-4" >
-                Sign Out
-         </button>
+          <button onClick={handleLogout} className="text-red-500 font-bold ml-4">
+            Sign Out
+          </button>
 
           <button className="text-blue-500 font-bold">Settings</button>
-         
         </div>
 
         {/* Tabs */}
@@ -160,24 +152,11 @@ const HomePage: React.FC = () => {
 
         {/* Content */}
         <div className="p-4">{renderContent()}</div>
-
-        {/* Draggable Handle */}
-        <div
-          className="absolute top-0 right-0 h-full w-1 bg-gray-400 cursor-col-resize"
-          onMouseDown={(e) => {
-            document.addEventListener('mousemove', handleDragStart);
-            document.addEventListener('mouseup', () => {
-              document.removeEventListener('mousemove', handleDragStart);
-            });
-          }}
-        ></div>
       </div>
-     {/*  {isLocationModalOpen && <LocationModal onClose={closeModal} />} */}
 
       {/* Right Pane (Outlet for Other Pages) */}
       <div className="flex-1 bg-white">
-               <Outlet />
-       
+        <Outlet />
       </div>
     </div>
   );

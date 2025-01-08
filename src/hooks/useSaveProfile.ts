@@ -24,14 +24,25 @@ const useSaveProfile = ({ formData, updateTextFields, user }: UseSaveProfileProp
         return false;
       }
 
-      // Check and update isProfileComplete
+    
       let updatedFormData = { ...formData };
+
+      // Ensure favorite section is only saved when both category and value are provided
+      if (formData.favorite) {
+        const { category, value } = formData.favorite;
+        if (!category || !value) {
+          console.warn("Incomplete favorite section. Removing from updated data.");
+          delete updatedFormData.favorite; // Exclude favorite if not completely filled
+        }
+      }
+
+       // Check and update isProfileComplete
       if (user && !user.isProfileComplete) {
         const allFieldsFilled = requiredFields.every((field) => formData[field]);
         if (allFieldsFilled) {
           updatedFormData.isProfileComplete = true;
         }
-      }
+      } 
 
       // Call the update API
       const result = await updateTextFields(updatedFormData);

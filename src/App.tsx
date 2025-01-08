@@ -12,6 +12,7 @@ import ErrorBoundary from './utils/ErrorBoundary';
 //import { useNavigate } from 'react-router-dom';
 import ProtectedRoute from './utils/ProtectedRoutes';
 import ProfilePage from './pages/Profile';
+import UserPage from './pages/Userpage';
 
 
 const App = () => {
@@ -30,12 +31,13 @@ const App = () => {
       <Route index element={ <ProtectedRoute>
         <People />  
       </ProtectedRoute>
+
         } /> {/* Default content */}
        <Route path="profile/update" element={ <ProtectedRoute>
-        <ErrorBoundary> <ProfileUpdate /></ErrorBoundary>
-        
+        <ErrorBoundary> <ProfileUpdate /></ErrorBoundary>  
       </ProtectedRoute>
         } /> 
+
         <Route path="profile/user" element={ <ProtectedRoute>
         <ProfilePage />
       </ProtectedRoute>
@@ -46,6 +48,11 @@ const App = () => {
         </ProtectedRoute>
         } />
        </Route>  
+       <Route path="/profile/user/:id" element={
+        <ProtectedRoute>
+           <UserPage />
+        </ProtectedRoute>
+        } />
     
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />

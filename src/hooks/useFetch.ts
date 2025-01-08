@@ -33,7 +33,7 @@ export const useFetchUser = (accessToken: string | null, refreshToken: string | 
 
 
 //Fetching User Photos
-export const useFetchPhotos = (accessToken: string | null, refreshToken: string | null, shldFetchPhotos: boolean):{ photos: ImageSlot[] | []; setPhotos: React.Dispatch<React.SetStateAction<ImageSlot[] |[] >> } => {
+export const useFetchPhotos = (accessToken: string | null, refreshToken: string | null):{ photos: ImageSlot[] | []; setPhotos: React.Dispatch<React.SetStateAction<ImageSlot[] |[] >> } => {
   const [photos, setPhotos] = useState<ImageSlot[] | []>([]);
  
 
@@ -53,7 +53,7 @@ export const useFetchPhotos = (accessToken: string | null, refreshToken: string 
       }
     };
     fetchPhotos();
-  }, [accessToken, refreshToken, shldFetchPhotos]);
+  }, [accessToken, refreshToken, ]);
 
   return  { photos, setPhotos, };
 };

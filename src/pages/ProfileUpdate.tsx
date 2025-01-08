@@ -41,17 +41,13 @@ const ProfileUpdate: React.FC = () => {
  const { setAvatar, isUpdatingAvatar, error } = useSetAvatar(accessToken);
  const navigate = useNavigate();
   
-  useEffect(() => {
-    if (!accessToken || !refreshToken) {
-      navigate('/login'); // Redirect to login if tokens are missing
-    }
-  }, [accessToken, refreshToken]);
+ 
   
-   //user && console.log("profileUpUser:", user)
+   user && console.log("profileUpUser:", user)
 
      //Setting Images from userPhotos
     useEffect(() => {
-      if (photos || refreshFlag) {
+      if (photos) {
         const updatedGrid = Array(9)
           .fill(null)
           .map((_, index) => photos[index] || { id: -1, src: '' });
@@ -81,7 +77,7 @@ const ProfileUpdate: React.FC = () => {
     refreshToken:refreshToken || '',
     occupation: user?.occupation || '',
    preference: user?.preference || '',
-   isProfileComplete:user?.isProfileComplete || false,
+  isProfileComplete:user?.isProfileComplete || false,
     datingGoals: user?.datingGoals || '',
     hobbies: user?.hobbies || [],
     zodiacSigns: user?.zodiacSigns || [],
@@ -196,13 +192,15 @@ useEffect(() => {
 
   //findal Save
   const handleSave = async () => {
+    console.log("begin save")
     const success = await saveProfile();
-   
+    console.log("end save")
     if (!success) {
       console.error("Save profile failed.", errorMessage );
     }else {
       console.log("Profile Successufully Updated:",success)
       setChseProfiePic(false)
+      navigate("/profile/user")
     }
   
   };
@@ -281,33 +279,31 @@ useEffect(() => {
         x
        </button>
 
-       {images.length > 1 && chseProfilePic && (
+         {images.length > 1 && chseProfilePic && (
             <button
               className="absolute top-2 left-2 bg-blue-500 text-white text-xs py-1 px-3 rounded-full"
               onClick={() => handleProfilePic(photo)}
               disabled={isUpdatingAvatar}
             >
-               {isUpdatingAvatar ? 'Updating...' : 'Choose Profile Picture'}
+               {isUpdatingAvatar && chseProfilePic ? 'Updating...' : 'this'}
             </button>
           )}
           {/* Show error if any CHANGE POSITION OR NOT */}
             
-     </div>
-        
-
+         </div>
                 ) : ( <button  className="bg-blue-500 text-white p-2 rounded"
                     onClick={() => {handleImageUpload(index, setImages); setShldFetchPhotos(true)}}
                   >
                     +
                   </button>
-                )}
-  </div>
-))}
+                 )}
+           </div>
+              ))}
 
-</div>
+          </div>
   
-      {/* Relevant Section */}
-      <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
+           {/* Relevant Section */}
+            <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
         <h2 className="text-xl font-bold mb-2">Relevant</h2>
         <textarea
           value={formData.bio }
@@ -324,10 +320,10 @@ useEffect(() => {
           { EDUCATION_LEVELS.map((option) => (
             <option key={option} value={option}>
               {option }
-            </option>
-          ))}
-        </select>
-        <div>
+               </option>
+              ))}
+             </select>
+          <div>
           <h4 className="font-bold mb-2">Searching For</h4>
           <div className="flex flex-wrap gap-2">
             {DATING_GOALS.map((goal) => (
@@ -394,20 +390,20 @@ useEffect(() => {
               onChange={(e) =>handleInputChange("occupation",e.target.value )}
               className="border p-2 w-full rounded-md mt-2"
               placeholder={`About your job title or work`}
-            />
-         </div>
-      </div>
+              />
+                </div>
+             </div>
 
-      {/* Interest Section */}
+             {/* Interest Section */}
       
-      <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
-  <h2 className="text-xl font-bold mb-4">Interests</h2>
+              <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
+           <h2 className="text-xl font-bold mb-4">Interests</h2>
   
-  {/* Hobbies Section */}
-  <div className="mb-6">
-    <h3 className="font-semibold mb-3">Hobbies</h3>
-    <div className="flex flex-wrap gap-3">
-      {HOBBIES.map((hobby) => (
+       {/* Hobbies Section */}
+           <div className="mb-6">
+          <h3 className="font-semibold mb-3">Hobbies</h3>
+          <div className="flex flex-wrap gap-3">
+            {HOBBIES.map((hobby) => (
         <label
           key={hobby}
           className={`flex items-center bg-gray-100 text-gray-700 px-3 py-2 rounded-lg shadow-sm hover:bg-blue-100 cursor-pointer transition duration-200 ${

@@ -1,33 +1,51 @@
 import React, { useState,useContext, useEffect } from 'react';
-import  {motion}  from "motion/react"
+import { useNavigate } from 'react-router-dom';
 import { PanInfo } from "framer-motion";
-
 import axios from 'axios';
-import TinderCard from 'react-tinder-card';
 import { useAuth } from '../context/AuthContext';
-import { Carousel } from '../components/Carousel'; 
+import {useFetchUser} from '../hooks/useFetch'; 
+import { useUsersContext } from '../context/UsersContext';
+import {ImageSlot } from '../types/ImageSlot'
 //import  LocationModal from '../components/LocationModal'; 
 import  GeneralModal from '../components/GeneralModal'; 
 
 const ProfilePage: React.FC = () => {
-  //const { user } = useContext(UsersContext);
-  const [user, setUser] = useState<any>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined); 
+  const accessToken = localStorage.getItem('accessToken');
+  const refreshToken = localStorage.getItem('refreshToken');
+  const { user, setUser, loading } = useFetchUser(accessToken, refreshToken);
+   const { images, setImages, photos, setShldFetchPhotos  } = useUsersContext();
+   const navigate = useNavigate();
   //const [theData, setTheData] = useState<any>(null);
   //const [showLocationModal, setShowLocationModal] = useState(true);
-   /* const [bio, setBio] = useState<string>('');
-   const [firstName, setFirstName] = useState<string>('');
-   const [lastName, setLastName] = useState<string>('');
-   const [email, setEmail] = useState<string>('');
-    const [avatar, setAvatar] = useState<File | null>(null);
-    const [preference, setPreference] = useState<string>('Everyone'); // New state
-    const [gender, setGender] = useState<string>('Male'); // New state
- */
+  
+  user && console.log("profboy:", user)
+  photos && console.log("proPhotos:", photos)
 
-  const images = [
+  /* const images = [
     { id: 1, src: '/images/img1.jpg' },
     { id: 2, src: '/images/img2.jpg' },
     { id: 3, src: '/images/img3.jpg' },
-  ];
+  ]; */
+
+   //Setting Images from userPhotos
+      useEffect(() => {
+        if (photos) {
+          const updatedGrid = Array(9)
+            .fill(null)
+            .map((_, index) => photos[index] || { id: -1, src: '' });
+            
+          // Only update state if there is an actual change
+          setImages((prevImages) => {
+            const isSame = prevImages.every((img, idx) => img.src === updatedGrid[idx]?.src);
+            if (!isSame) {
+              return updatedGrid;
+            }
+            return prevImages;
+          });
+        }
+      }, [photos]); // No need to include images
+      
 
   const recentMemories = [
     'Uploaded a photo at the park',
@@ -40,32 +58,18 @@ const ProfilePage: React.FC = () => {
     console.log(`Swiped ${direction} on image ${imageId}`);
   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
-    
-      if (accessToken || refreshToken) {
-        try {
-          const response = await axios.post('http://localhost:5000/api/profile/user', 
-            { refreshToken }, // Send in the body
-            {headers: { Authorization: `Bearer ${accessToken}` },
-            withCredentials: true,   });
-          //setTheData(response.data); 
-          const { user } = response.data;
-          setUser(user)  
-          console.log("Response Data",response.data)
-        } catch (err) {
-          console.error('Error fetching user:', err);
+    useEffect(() => {
+        if (user && photos.length > 0) {
+          // Search for the avatar photo in userPhotos
+          const avatarPhoto = photos.find((photo:any) => photo._id === user.avatar);
+          if (avatarPhoto) {
+            setAvatarUrl(avatarPhoto.src  ); // Use the signed URL or fallback to the direct URL
+          } else {
+            setAvatarUrl(undefined); // Clear avatar if no match is found
+          }
         }
-      }
-    };
-    
-    fetchUser();
-  }, []);
-        
-  user && console.log(user.firstName, user.bio, user.avatarUrl)
-  
+      }, [user, photos]); 
+         
 
   //construct image URL
   //user.avatarUrl = `https://pokistorage.s3.eu-central-1.amazonaws.com/${user.avatar}`;
@@ -90,89 +94,62 @@ const ProfilePage: React.FC = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6 overflow-y-auto ">
     <h1 className="text-3xl font-bold mb-4">User's Profile</h1>
              
-    <div className="relative z-10 mb-0">
-  <div className="tinder-card-container w-full max-w-lg mx-auto">
-  <h1>{user.firstName} {user.lastName}</h1>
-   
-    {/* Tinder Card */}
-    {images.map((image, index) => (
-        <TinderCard
-          key={image.id}
-          className="absolute"
-          onSwipe={(dir) => handleSwipe(dir, image.id)}
-          preventSwipe={['up', 'down']}
-        >
-          <div
-            className="bg-white shadow-lg rounded-lg flex items-center justify-center"
-            style={{
-              backgroundImage: `url(${user.avatarUrl})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              height: '400px',
-              width: '300px',
-            }}
-          ></div>
-        </TinderCard>
-      ))}
-    <motion.div
-      key={user?.id}
-      className="w-72 h-96 bg-white shadow-lg rounded-lg flex flex-col items-center justify-center overflow-hidden"
-      style={{ zIndex: 10 }}
-      drag="x"
-      onDragEnd={(event, info) => handleDragEnd(event, info, user.id)}
-      initial={{ scale: 1 }}
-      animate={{ scale: 1 }}
-      whileDrag={{ scale: 1.05 }}
-      exit={{ opacity: 0 }}
-    >
-  {/* Profile Details */}
-  {user &&(<div className="profile text-center p-4">
-    <h1 className="text-xl font-bold">{user?.firstName} {user?.lastName}</h1>
-     {user.avatarUrl ? (
-      <img
-     
-       src={`${user.avatarUrl}`}
-     
-        alt={`${user?.firstName}'s avatar`}
-        className="w-32 h-32 rounded-full shadow-lg my-4"
-      />
-    ) : (
-      <p className="text-sm text-gray-500">No avatar available</p>
-    )} 
-  </div>)}
-
-  {/* Bio or Additional Info */}
-  {user &&(<div className="text-sm text-gray-600">
-    <p>{user.bio} </p>
-  </div>)}
-</motion.div>
-
+     {/* Header */}
+  <div className="w-full max-w-lg flex justify-between items-center mb-4">
+    <button
+      onClick={()=>navigate('/profile/update')}
+     className="bg-green-500 text-white py-2 px-4 rounded-lg">
+      Edit</button>
+    <div className="border-l h-full mx-2"></div>
   </div>
-  {/* Spacer */}
-  <div className="mt-10"></div>
-  
-</div>
+
+  {/* Image Grid */}
+  <div
+    className="grid grid-cols-3 gap-4 mb-9 bg-white p-6 rounded-lg shadow-lg w-full max-w-lg"
+    style={{ height: '600px' }}
+  >
+    {/* Ensure all 9 slots are displayed */}
+    {photos && images?.map((photo: any, index: number) => (
+      <div key={index} className="relative bg-gray-200 h-40 flex items-center justify-center border rounded-lg">
+        {photo.src ? (
+          <div className="relative bg-gray-200 h-40 flex items-center justify-center border rounded-lg">
+            <img
+              src={photo.src}
+              alt={`Slot ${index}`}
+              className="h-full w-full object-cover rounded-lg"
+            />
+    
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full w-full text-gray-500 text-xl">
+            Empty
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
 
 
     {/* Relevant Section */}
-    {user && (<div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6 ">
+   <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6 ">
       <h2 className="text-xl font-bold mb-2">Relevant</h2>
-      <p><strong>Bio:</strong> {user.bio}</p>
-      <p><strong>Occupation:</strong> Software Developer</p>
-      <p><strong>Location:</strong> New York, USA</p>
-    </div>)}
+     {user &&  <p><strong>Bio:</strong> {user.bio || " no bio"}</p>}
+      <p><strong>Dating Goals:</strong> {user.datingGoals}</p>
+      <p><strong>Education:</strong> {user.education}</p>
+      <p><strong>Occupation:</strong> {user.occupation || "N/A"}</p>
+    </div>
 
     {/* Interest Section */}
    {user &&( <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
       <h2 className="text-xl font-bold mb-2">Interests</h2>
-      <p><strong>Zodiac Sign:</strong> Scorpio</p>
-      <p><strong>Favorite Movies:</strong> Inception, The Dark Knight</p>
-      <p><strong>Favorite Music:</strong> Jazz, Pop</p>
-      <p><strong>Hobbies:</strong> Painting, Reading</p>
+      <p><strong>Zodiac Signs:</strong> {user.zodiacSigns}</p>
+      <p><strong>Hobbies:</strong> {user.hobbies},</p>
+      <p><strong>Favorite :</strong>{user.favorite?.category} Right Now is {user.favorite?.value}</p>
+     
     </div>)}
 
     {/* Memories Section */}
-    <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
+   {/*  <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
       <h2 className="text-xl font-bold mb-2">Memories</h2>
       <ul>
         <li>Shared a memory with Alice</li>
@@ -182,7 +159,7 @@ const ProfilePage: React.FC = () => {
       <button className="bg-blue-500 text-white py-2 px-4 rounded-lg mt-4">
         Access Vault
       </button>
-    </div>
+    </div> */}
 
     {/* Account Information Section */}
     <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
