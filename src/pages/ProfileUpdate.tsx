@@ -199,7 +199,7 @@ useEffect(() => {
       console.error("Save profile failed.", errorMessage );
     }else {
       console.log("Profile Successufully Updated:",success)
-      setChseProfiePic(false)
+     // setChseProfiePic(false)
       navigate("/profile/user")
     }
   

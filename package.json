@@ -15,6 +15,7 @@
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "axios": "^1.7.9",
+    "emoji-picker-react": "^4.12.0",
     "framer-motion": "^11.15.0",
     "jwt-decode": "^4.0.0",
     "motion": "^11.15.0",
@@ -29,6 +30,7 @@
     "react-tinder-card": "^1.6.4",
     "react-toastify": "^11.0.2",
     "redux": "^5.0.1",
+    "reselect": "^5.1.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },

@@ -10,12 +10,14 @@ export const useFetchUser = (accessToken: string | null, refreshToken: string | 
 
   useEffect(() => {
     const fetchUser = async () => {
+      //console.log("UseFETCH:fetching user")
       if (accessToken || refreshToken) {
         try {
           const response = await axios.post('http://localhost:5000/api/profile/user', 
             { refreshToken },
             { headers: { Authorization: `Bearer ${accessToken}` } });
           setUser(response.data.user);
+         //console.log("UseFETCH:",user)
         } catch (err) {
           console.error('Error fetching user:', err);
         } finally {

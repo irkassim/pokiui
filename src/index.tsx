@@ -5,6 +5,9 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../src/context/AuthContext';
 import {UsersProvider} from '../src/context/UsersContext';
+import { Provider } from 'react-redux';
+import store from './reduxstore/store';
+
 import { FeaturesProvider } from './context/FeaturesContext';
 
 
@@ -18,7 +21,9 @@ root.render(
     {/* <FeaturesProvider> */}  
     <UsersProvider>
     <AuthProvider>
+    <Provider store={store}>
       <App />
+      </Provider>
       </AuthProvider> 
       </UsersProvider> 
       {/* <FeaturesProvider> */}  

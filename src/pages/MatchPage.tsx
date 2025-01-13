@@ -7,10 +7,11 @@ import { RootState } from '../reduxstore/store'; // Assuming you have a RootStat
 import axios from 'axios';
 import { AppDispatch } from '../reduxstore/store'; // Import your AppDispatch type
 
-const UserPage: React.FC = () => {
+const MatchPage: React.FC = () => {
   const { id: userId } = useParams(); // Extract userId from the route
   const location = useLocation();
-  const matchId= new URLSearchParams(location.search).get('use'); // Extract matchId 
+  const matchId = new URLSearchParams(location.search).get('use'); // Extract matchId 
+  const type = new URLSearchParams(location.search).get('type'); // Extract matchId 
   const [user, setUser] = useState<any>(null);
   const [images, setImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -19,10 +20,12 @@ const UserPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const matchesState = useSelector((state: RootState) => state.matches); // Access matches from Redux store
 
+ 
   // Fetch user profile
   useEffect(() => {
     const fetchUserProfile = async () => {
-       const url= `http://localhost:5000/api/profile/user/${userId}?use=${matchId}`
+       const url= `http://localhost:5000/api/profile/user/${userId}?use=${matchId}&type=${type}`
+     //  console.log("TheURLMatch:", url)
       try {
         const response = await axios.get(url, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -37,10 +40,10 @@ const UserPage: React.FC = () => {
     fetchUserProfile();
   }, [userId, matchId]);
 
-  //user && console.log("updateUserpage", user)
-  matchDetails && console.log("userMatch", matchDetails)
-  matchId && console.log("matchId", matchId)
- // matchesState && console.log("matchesState", matchesState)
+ // user && console.log("updateUserpage", user)
+ // matchDetails && console.log("userMatch", matchDetails)
+  //matchId && console.log("matchId", matchId)
+  //matchesState && console.log("matchesState", matchesState)
 
   // Handle TinderCard swipe
   const handleSwipe = (direction: string) => {
@@ -54,7 +57,7 @@ const UserPage: React.FC = () => {
 
   // Dispatch accept match
   const handleAcceptMatch = () => {
-    console.log('Accept button clicked');
+   // console.log('Accept button clicked');
     if (matchId) {
       const sendRes=   dispatch(acceptMatch(matchId) as any );
       console.log("Match Accept Successfully",  sendRes)
@@ -63,10 +66,8 @@ const UserPage: React.FC = () => {
 
   // Dispatch reject match
   const handleRejectMatch = () => {
-    console.log("Reject", matchId)
-    console.log('Reject button clicked');
-     if (matchId) {
-      console.log("Reject", matchId)
+   // console.log("Reject", matchId)
+     if (matchId) { 
      const sendRes= dispatch(rejectMatch(matchId) as any );
       console.log("Match Rejected Successfully", sendRes)
     } 
@@ -103,18 +104,36 @@ const UserPage: React.FC = () => {
               >
                 {/* Footer overlay */}
                 <div className="absolute bottom-0 bg-black bg-opacity-50 text-white text-sm p-2 rounded-b-lg w-full">
-                  <p>{matchDetails?.duration || ''}</p>
-                  <p>{matchDetails?.commonInterests || ''}</p>
+                  <p>{matchDetails?.duration || 'Sent just now'}</p>
+                  <p>{matchDetails?.commonInterests || 'No shared interests'}</p>
                 </div>
               </div>
             </TinderCard>
           ))}
         </div>
         
+           {/*  <button onClick={()=>console.log("Clicked dummy")}> Reject</button> */}
+
+          {/* Buttons for Accept/Reject */}
+          {/* <div className="flex justify-between w-full max-w-lg mt-4">
+                  <button  className="bg-green-500 text-white py-2 px-4 rounded-lg shadow"
+                  onClick={handleAcceptMatch}>
+                    Accept 
+                  </button>
+                  <button 
+                    className="bg-red-500 text-white py-2 px-4 rounded-lg shadow"
+              
+                    onClick={handleMatchReject}>
+                    Reject 
+                  </button>
+                  <button
+                  className="bg-red-500 text-white py-2 px-4 rounded-lg shadow"
+                  onClick={()=>console.log("Clicked dummy")}> Reject</button> 
+          </div> */}
         </div>
 
       {/* Match Actions */}
-     {/*  {matchDetails && (
+      {matchDetails && (
         <div className="flex justify-between items-center w-full max-w-lg mb-4">
           {matchDetails.status === 'pending' ? (
             <button
@@ -129,23 +148,24 @@ const UserPage: React.FC = () => {
           onClick={handleRejectMatch}
            className="bg-red-500 text-white px-4 py-2 rounded-lg">Reject Match</button>
         </div>
-      )} */}
+      )}
 
       {/* User Details */}
-       <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
+      <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
+      
         <h2 className="text-xl font-bold mb-2">About {user.firstName}</h2>
         <p><strong>Bio:</strong> {user.bio || 'N/A'}</p>
         <p><strong>Dating Goals:</strong> {user.datingGoals || 'N/A'}</p>
         <p><strong>Education:</strong> {user.education || 'N/A'}</p>
         <p><strong>Occupation:</strong> {user.occupation || 'N/A'}</p>
-      </div> 
+      </div>
 
       {/* Interests Section */}
-       <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
+      <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
         <h2 className="text-xl font-bold mb-2">Interests</h2>
         <p><strong>Zodiac Signs:</strong> {user.zodiacSigns?.join(', ') || 'N/A'}</p>
         <p><strong>Hobbies:</strong> {user.hobbies?.join(', ') || 'N/A'}</p>
-      </div> 
+      </div>
 
       {/* Memories Section */}
       <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6 mb-6">
@@ -160,4 +180,4 @@ const UserPage: React.FC = () => {
   );
 };
 
-export default UserPage;
+export default MatchPage;

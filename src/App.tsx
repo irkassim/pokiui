@@ -13,6 +13,9 @@ import ErrorBoundary from './utils/ErrorBoundary';
 import ProtectedRoute from './utils/ProtectedRoutes';
 import ProfilePage from './pages/Profile';
 import UserPage from './pages/Userpage';
+import MatchPage from './pages/MatchPage';
+import PokePage from './pages/PokePage';
+import MessagesPage from './pages/MessagesPage';
 
 
 const App = () => {
@@ -30,30 +33,48 @@ const App = () => {
     <Route path="/" element={<HomePage />}>
       <Route index element={ <ProtectedRoute>
         <People />  
-      </ProtectedRoute>
+      </ProtectedRoute>} />
+      
+       {/* Default content */}
+       <Route path="home" element={
+        <ProtectedRoute>
+          <People /> 
+          </ProtectedRoute>  } />
 
-        } /> {/* Default content */}
        <Route path="profile/update" element={ <ProtectedRoute>
         <ErrorBoundary> <ProfileUpdate /></ErrorBoundary>  
-      </ProtectedRoute>
-        } /> 
+        </ProtectedRoute> } /> 
 
         <Route path="profile/user" element={ <ProtectedRoute>
         <ProfilePage />
-      </ProtectedRoute>
-        } />
-      <Route path="home" element={
+        </ProtectedRoute>} />
+
+        <Route path="profile/user/:id" element={ <ProtectedRoute>
+        <UserPage />
+        </ProtectedRoute>} />
+
+
+        <Route path="/profile/match/:id" element={
         <ProtectedRoute>
-          <People />
+           <MatchPage />
         </ProtectedRoute>
         } />
+        <Route path="/profile/poke/:id" element={
+        <ProtectedRoute>
+           <PokePage />
+        </ProtectedRoute>
+        } />
+
+        <Route path="/profile/message/:id" element={
+        <ProtectedRoute>
+           <MessagesPage />
+        </ProtectedRoute>
+        } />
+
        </Route>  
-       <Route path="/profile/user/:id" element={
-        <ProtectedRoute>
-           <UserPage />
-        </ProtectedRoute>
-        } />
-    
+
+   
+    {/* Outside Outlet */}
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
     <Route path="*" element={<Navigate to="/" />} /> {/* Redirect unknown routes */}

@@ -2,10 +2,10 @@ import React, { useState,useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PanInfo } from "framer-motion";
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+//import { useAuth } from '../context/AuthContext';
 import {useFetchUser} from '../hooks/useFetch'; 
 import { useUsersContext } from '../context/UsersContext';
-import {ImageSlot } from '../types/ImageSlot'
+//import {ImageSlot } from '../types/ImageSlot'
 //import  LocationModal from '../components/LocationModal'; 
 import  GeneralModal from '../components/GeneralModal'; 
 
@@ -16,18 +16,11 @@ const ProfilePage: React.FC = () => {
   const { user, setUser, loading } = useFetchUser(accessToken, refreshToken);
    const { images, setImages, photos, setShldFetchPhotos  } = useUsersContext();
    const navigate = useNavigate();
-  //const [theData, setTheData] = useState<any>(null);
   //const [showLocationModal, setShowLocationModal] = useState(true);
-  
+ /*  
   user && console.log("profboy:", user)
   photos && console.log("proPhotos:", photos)
-
-  /* const images = [
-    { id: 1, src: '/images/img1.jpg' },
-    { id: 2, src: '/images/img2.jpg' },
-    { id: 3, src: '/images/img3.jpg' },
-  ]; */
-
+ */
    //Setting Images from userPhotos
       useEffect(() => {
         if (photos) {
@@ -46,18 +39,7 @@ const ProfilePage: React.FC = () => {
         }
       }, [photos]); // No need to include images
       
-
-  const recentMemories = [
-    'Uploaded a photo at the park',
-    'Shared a video with Alex',
-    'Added a new memory',
-    'Updated a hidden memory',
-    'Uploaded a group photo',
-  ]; // Example recent memories
-  const handleSwipe = (direction: string, imageId: number) => {
-    console.log(`Swiped ${direction} on image ${imageId}`);
-  };
-
+//Getting uSER PHOTOS
     useEffect(() => {
         if (user && photos.length > 0) {
           // Search for the avatar photo in userPhotos
