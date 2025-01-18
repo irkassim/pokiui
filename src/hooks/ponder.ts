@@ -6,6 +6,19 @@ const useFetchActivity = (accessToken:any, refreshToken: any) => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+const [userId, setUserId] = useState('67701844641eec415b9d7142'); 
+const [latitude, setLatitude] = useState(5.7297233);
+const [longitude, setLongitude] = useState(-0.1847117);
+
+// Example: dynamically updating state
+useEffect(() => {
+  // Example of dynamically updating user location
+  navigator.geolocation.getCurrentPosition((position) => {
+    setLatitude(position.coords.latitude);
+    setLongitude(position.coords.longitude);
+  });
+}, []);
+
 
   useEffect(() => {
     const fetchWithToken = async (url:any) => {

@@ -1,148 +1,125 @@
-import React, { useState,useContext } from 'react';
-import { motion, PanInfo } from 'framer-motion';
-import { FaBolt, FaMapMarkerAlt } from 'react-icons/fa'; // Icons for Boost and Explore
-import { FeaturesContext } from '../context/FeaturesContext';
-import LocationModal from '../components/LocationModal';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchPeople, resetPeople } from '../reduxstore/slices/peopleSlice';
+import { RootState, AppDispatch } from '../reduxstore/store';
+import { FaBolt, FaMapMarkerAlt, FaUndo, FaHeart, FaTimes } from "react-icons/fa";
+import CustomTinderCard from '../components/TinderCard'; // Custom TinderCard component
+import { fetchUserProfile } from '../reduxstore/slices/userSlice';
+
+// Define the User interface
+interface User {
+  _id: string;
+  firstName: string;
+  publicPhotos: string[];
+  bio: string;
+  hobbies: string[];
+  distance: number;
+}
 
 const People: React.FC = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Alice', avatar: '/path/to/avatar1.jpg', bio: 'Loves hiking and coffee' },
-    { id: 2, name: 'Bob', avatar: '/path/to/avatar2.jpg', bio: 'Tech enthusiast and gamer' },
-    { id: 3, name: 'Charlie', avatar: '/path/to/avatar3.jpg', bio: 'Dog lover and foodie' },
-  ]);
-  const [isLocationModalOpen, setLocationModalOpen] = useState(true);
-  const closeModal = () => setLocationModalOpen(false);
-
-  /*  const { matches, setMatches,
-     pokes, setPokes, exploreStatus, 
-     handlePoke, user,
-    setExploreStatus, boostCount, 
-    setBoostCount } = useContext(FeaturesContext); 
-
-    console.log(pokes, matches, user ) */
-  
-  const [people, setPeople] = useState([
-    { id: 1, name: 'Alice', bio: 'Loves hiking and movies', avatar: '/images/alice.jpg' },
-    { id: 2, name: 'Bob', bio: 'Avid gamer and foodie', avatar: '/images/bob.jpg' },
-    { id: 3, name: 'Charlie', bio: 'Tech enthusiast and coffee lover', avatar: '/images/charlie.jpg' },
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const observerRef = useRef<HTMLDivElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { users, currentPage, totalPages, loading, currentUser } = useSelector((state: RootState) => ({
+    ...state.people,
+    currentUser: state.user.user,
+  }));
+  
+   // Dispatch fetchUserProfile on app load
+    useEffect(() => { 
+  if(!currentUser){
+    dispatch(fetchUserProfile()as any);
+  }
+  }, [dispatch, currentUser]);
 
-  const handleSwipe = (direction: string, userId: number) => {
-    console.log(`Swiped ${direction} on user ${userId}`);
-    if (direction === 'left') {
-      console.log(`Skipped user ${userId}`);
-     //  setMatches([...matches, people.find((p) => p.id === userId)]); 
-    } else if (direction === 'right') {
-      console.log(`Matched with user ${userId}`);
+  //UserParams
+  const latitude= 5.7297233
+  const longitude=  -0.1847117
+  const userId ='67701844641eec415b9d7142'
+
+  currentUser && console.log("CurrentUserPeople:", currentUser)
+
+  users && console.log("The Users", users)
+  // Fetch users on mount
+  useEffect(() => {
+    dispatch(resetPeople()); // Reset state when visiting this page
+    dispatch(fetchPeople({ userId, latitude, longitude, page: currentPage }));
+  }, [dispatch, userId, latitude, longitude, currentPage]);
+
+  // Infinite scrolling
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && currentPage < totalPages && !loading) {
+          dispatch(fetchPeople({ userId, latitude, longitude, page: currentPage + 1 }));
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
     }
 
-    // Move to the next user
-    setCurrentIndex((prevIndex) => prevIndex + 1);
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current);
+    };
+  }, [dispatch, currentPage, totalPages, loading, userId, latitude, longitude]);
+
+ /*  const handleDragEnd = (_: any, info: PanInfo, userId: number) => {
+    console.log('Drag ended:', userId, info.offset.x > 0 ? 'right' : 'left');
   };
+ */
 
-  const detectSwipeDirection = (offset: number, velocity: number): string => {
-    if (velocity > 0.2 && offset > 100) return 'right';
-    if (velocity < -0.2 && offset < -100) return 'left';
-    return '';
-  };
+  const handleSwipe = (direction: string) => {
+    console.log(`Swiped ${direction} on user ${users[currentIndex]}`);
+    if (direction === 'left' ) {
+      console.log(" left, user rejected")
+      setCurrentIndex((prev) => (prev + 1 < users.length ? prev + 1 : 0)); // Loop back to the first user if end
 
-  const handleDragEnd = (_: any, info: PanInfo, userId: number) => {
-    const direction = detectSwipeDirection(info.offset.x, info.velocity.x);
-
-    if (direction) {
-      handleSwipe(direction, userId);
+    }else if( direction === 'right'){
+      console.log(" right, user accepted")
+      setCurrentIndex((prev) => (prev + 1 < users.length ? prev + 1 : 0))
     }
   };
 
-  const pokeCurrentUser = () => {
-    const currentUser = users[currentIndex];
-    if (currentUser) {
-     // handlePoke(currentUser.id);
-    }
-  };
- /*  // Handle poke functionality
-  const handlePoke = (userId: number) => {
-     setPokes([...pokes, people.find((p) => p.id === userId)]);
-    console.log(`Poked user: ${userId}`);
-  }; */
-
-  // Handle explore functionality
-  const handleExplore = () => {
-    //setExploreStatus(!exploreStatus);
-    //console.log(`Explore status: ${!exploreStatus}`); 
-  };
-
-  // Handle boost functionality
-  const handleBoost = () => {
-   /*  if (boostCount > 0) {
-      setBoostCount(boostCount - 1);
-      console.log('Boost activated!');
+  const handleDragEnd = (_: any, info: any) => {
+    if (info.offset.x > 0) {
+      handleSwipe('right');
     } else {
-      alert('No boosts left. Purchase more boosts!');
-    }  */
+      handleSwipe('left');
+    }
   };
+
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center">
       <h1 className="text-3xl font-bold my-4">Meet People</h1>
-      {isLocationModalOpen && <LocationModal onClose={closeModal} />}
 
-      {/* Card Stack */}
-      <div className="relative w-full flex items-center justify-center mt-4" style={{ height: '500px' }}>
-        {users
-          .slice(currentIndex, currentIndex + 1)
-          .map((user) => (
-            <motion.div
-              key={user.id}
-              className="w-72 h-96 bg-white shadow-lg rounded-lg flex flex-col items-center justify-center overflow-hidden absolute"
-              style={{ zIndex: 10 }}
-              drag="x"
-              onDragEnd={(event, info) => handleDragEnd(event, info, user.id)}
-              initial={{ scale: 1 }}
-              animate={{ scale: 1 }}
-              whileDrag={{ scale: 1.05 }}
-              exit={{ opacity: 0 }}
-            >
-              <img
-                src={user.avatar || '/default-avatar.png'}
-                alt={user.name}
-                className="w-full h-2/3 object-cover"
-              />
-              <div className="p-4 text-center">
-                <h2 className="text-xl font-semibold">{user.name}</h2>
-                <p className="text-sm text-gray-600 mt-2">{user.bio}</p>
-              </div>
-            </motion.div>
-          ))}
+      {/* TinderCard Display */}
+      <div className="relative w-full flex flex-col items-center" style={{ height: '500px' }}>
+        {users.slice(currentIndex, currentIndex+1).map((user: any) => (
+          <CustomTinderCard key={user._id}
+          onSwipeComplete={handleSwipe}
+          user={user} />
+        ))}
+        <div ref={observerRef} className="w-full h-1" />
+      </div> 
+
+      {/* Controls */}
+      <div className="flex justify-between items-center w-full max-w-lg mt-6 px-4">
+        <button className="bg-purple-500 p-4 rounded-full text-white"><FaUndo size={24} /></button>
+
+        <button className="bg-gray-500 p-4 rounded-full text-white"><FaTimes size={24} /></button>
+
+        <button className="bg-yellow-500 p-4 rounded-full text-white"><FaBolt size={24} /></button>
+
+        <button className="bg-blue-500 p-4 rounded-full text-white"><FaHeart size={24} /></button>
+
+        <button className="bg-green-500 p-4 rounded-full text-white"><FaMapMarkerAlt size={24} /></button>
       </div>
-        {/* Bottom Controls */}
-        <div className="flex justify-between items-center w-full max-w-md mt-8 px-4">
-        {/* Boost Button */}
-        <button
-          className="bg-yellow-500 p-4 rounded-full shadow-lg text-white hover:bg-yellow-600 transition"
-          onClick={() => console.log('Boost activated!')} // Placeholder
-        >
-          <FaBolt size={24} />
-        </button>
 
-        {/* Poke Button */}
-        <button
-          className="bg-blue-500 p-4 rounded-full shadow-lg text-white hover:bg-blue-600 transition"
-          onClick={pokeCurrentUser}
-        >
-          Poke
-        </button>
-
-        {/* Explore Button */}
-        <button
-          className="bg-green-500 p-4 rounded-full shadow-lg text-white hover:bg-green-600 transition"
-          onClick={() => console.log('Explore activated!')} // Placeholder
-        >
-          <FaMapMarkerAlt size={24} />
-        </button>
-      </div>
-     
+      {loading && <p>Loading more users...</p>}
     </div>
   );
 };

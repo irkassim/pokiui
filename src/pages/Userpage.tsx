@@ -6,6 +6,7 @@ import { acceptMatch, rejectMatch } from '../reduxstore/slices/matchSlice';
 import { RootState } from '../reduxstore/store'; // Assuming you have a RootState type for your Redux st
 import axios from 'axios';
 import { AppDispatch } from '../reduxstore/store'; // Import your AppDispatch type
+import { motion, PanInfo } from 'framer-motion';
 
 const UserPage: React.FC = () => {
   const { id: userId } = useParams(); // Extract userId from the route
@@ -38,8 +39,8 @@ const UserPage: React.FC = () => {
   }, [userId, matchId]);
 
   //user && console.log("updateUserpage", user)
-  matchDetails && console.log("userMatch", matchDetails)
-  matchId && console.log("matchId", matchId)
+//  matchDetails && console.log("userMatch", matchDetails)
+  //matchId && console.log("matchId", matchId)
  // matchesState && console.log("matchesState", matchesState)
 
   // Handle TinderCard swipe
@@ -71,6 +72,9 @@ const UserPage: React.FC = () => {
       console.log("Match Rejected Successfully", sendRes)
     } 
   };
+  const handleDragEnd = (_: any, info: PanInfo, userId: number) => {
+      console.log('Drag ended:', userId, info.offset.x > 0 ? 'right' : 'left');
+    };
 
   // Conditional rendering for loading
   if (!user) {
@@ -93,14 +97,8 @@ const UserPage: React.FC = () => {
             >
               <div
                 className="bg-white shadow-lg rounded-lg flex items-center justify-center"
-                style={{
-                  backgroundImage: `url(${image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  height: '400px',
-                  width: '300px',
-                }}
-              >
+                style={{ backgroundImage: `url(${image})`,backgroundSize: 'cover',backgroundPosition: 'center',
+                  height: '400px', width: '300px',}}>
                 {/* Footer overlay */}
                 <div className="absolute bottom-0 bg-black bg-opacity-50 text-white text-sm p-2 rounded-b-lg w-full">
                   <p>{matchDetails?.duration || ''}</p>
@@ -108,8 +106,8 @@ const UserPage: React.FC = () => {
                 </div>
               </div>
             </TinderCard>
-          ))}
-        </div>
+           ))}
+          </div>
         
         </div>
 

@@ -32,6 +32,11 @@ const HomePage: React.FC = () => {
     pokes: state.pokes.pokes,
     messages: state.messages.messages,
   })); */
+   // Fetch the current user from Redux
+ const currentUser = useSelector((state: RootState) => state.user.user);
+
+ console.log("HOmepageCurreUser:", currentUser);
+currentUser && console.log("HOmepageCurreUser Name:", currentUser?.user?.firstName);
 
   const matches = useSelector(selectMatches); // Use memoized selector
   const pokes = useSelector(selectPokes); // Use memoized selector
@@ -41,7 +46,6 @@ const HomePage: React.FC = () => {
   const accessToken = localStorage.getItem('accessToken');
   const { user, setUser, loading } = useFetchUser(accessToken, refreshToken);
   const { photos, setPhotos } = useFetchPhotos(accessToken, refreshToken);
-  //const { matches, pokes, messages, loadingActivities, error } = useFetchActivity(accessToken);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,7 +75,7 @@ const HomePage: React.FC = () => {
     fetchData();
   }, [dispatch]);
 
-  messages && console.log("HomeMessages:", messages)
+  //messages && console.log("HomeMessages:", messages)
  /*  user && console.log("homeboy:", user)
   photos && console.log("homephotos:", photos)
  */
@@ -117,7 +121,7 @@ const HomePage: React.FC = () => {
              // userItem = senderId === user?._id ? receiver: item?.participants?.find((p: any) => p._id === senderId);
               avatar = Array.isArray(userItem?.avatar) ? userItem.avatar[0] : userItem?.avatar;
               userItem&& console.log("MessageUserITEM:", item, senderId, receiver, userItem);
-              userItem&& console.log("ITEM TYPE:", type, "USERITEMID:",userItem._id);
+             // userItem&& console.log("ITEM TYPE:", type, "USERITEMID:",userItem._id);
             } else if (isMatch) {
               // Extract data for matches
               //console.log("ITEM:", userItem, "ITEM TYPE:", type,"ISMATCH", isMatch);

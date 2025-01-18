@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api'; // Import the Axios instance
 import { useAuth } from '../context/AuthContext';
-import { jwtDecode } from 'jwt-decode';
+//import { jwtDecode } from 'jwt-decode';
+import { fetchUserProfile } from '../reduxstore/slices/userSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
 
 
@@ -13,6 +15,7 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null); // State to handle errors
   const navigate = useNavigate(); // Hook to navigate between pages
   const { login } = useAuth(); // Access login function from AuthContext
+  const dispatch = useDispatch();
   // Handle form submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +31,12 @@ const Login = () => {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
   
-      console.log('Access Token:', accessToken);
-      console.log('Refresh Token:', refreshToken);
+     /*  console.log('Access Token:', accessToken);
+      console.log('Refresh Token:', refreshToken); */
   
       // Update AuthContext
       login(accessToken);
+      dispatch(fetchUserProfile()as any);
       navigate('/home');
     } catch (err: any) {
       console.error('Login Error:', err.response?.data || err.message);

@@ -43,7 +43,7 @@ const ProfileUpdate: React.FC = () => {
   
  
   
-   user && console.log("profileUpUser:", user)
+  // user && console.log("profileUpUser:", user)
 
      //Setting Images from userPhotos
     useEffect(() => {
@@ -86,13 +86,7 @@ const ProfileUpdate: React.FC = () => {
     publicPhotos:[]
   });
 
-  //Calling save Profile Hook
-  const { saveProfile, errorMessage } = useSaveProfile({
-    formData,
-    updateTextFields,
-    user,
-  });
-
+  
 // Sync formData with user when user is fetched
 useEffect(() => {
   if (user) {
@@ -115,6 +109,14 @@ useEffect(() => {
     }));
   }
 }, [user]); // Runs whenever `user` changes
+
+
+//Calling save Profile Hook
+const { saveProfile, errorMessage } = useSaveProfile({
+  formData,
+  updateTextFields,
+  user,
+});
   
   //loading if no user
   if (loading) {
@@ -200,7 +202,7 @@ useEffect(() => {
     }else {
       console.log("Profile Successufully Updated:",success)
      // setChseProfiePic(false)
-      navigate("/profile/user")
+     // navigate("/profile/user")
     }
   
   };

@@ -49,6 +49,7 @@ const App = () => {
         <ProfilePage />
         </ProtectedRoute>} />
 
+          {/**user's profile from poke page */}
         <Route path="profile/user/:id" element={ <ProtectedRoute>
         <UserPage />
         </ProtectedRoute>} />

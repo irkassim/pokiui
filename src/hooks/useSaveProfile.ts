@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User } from '../types/User';
 
 interface UseSaveProfileProps {
-  formData: any; // Replace with your actual form data type if available
+  formData: any; //Replace the any maybe
   updateTextFields: (updates: any) => Promise<{ success: boolean }>;
   user: User | null;
 }
@@ -14,6 +14,7 @@ const useSaveProfile = ({ formData, updateTextFields, user }: UseSaveProfileProp
 
   const saveProfile = async () => {
     try {
+         console.log("THEFORM:", formData)
       // Validation for required fields
       const requiredFields = ['bio', 'education', 'preference', 'datingGoals', 'gender'];
       const missingFields = requiredFields.filter((field) => !formData[field]);
@@ -25,27 +26,24 @@ const useSaveProfile = ({ formData, updateTextFields, user }: UseSaveProfileProp
       }
 
     
-      let updatedFormData = { ...formData };
+        // Create a backend-compatible update object
+          const updatedFormData = {
+            bio: formData.bio,
+            education: formData.education,
+            preference: formData.preference,
+            datingGoals: formData.datingGoals,
+            gender: formData.gender,
+            hobbies: formData.hobbies,
+            zodiacSigns: formData.zodiacSigns,
+            favorite: formData.favorite?.category && formData.favorite?.value ? formData.favorite : undefined, // Only include favorite if complete
+            occupation: formData.occupation || '',
+            isProfileComplete: true,
+          };
 
-      // Ensure favorite section is only saved when both category and value are provided
-      if (formData.favorite) {
-        const { category, value } = formData.favorite;
-        if (!category || !value) {
-          console.warn("Incomplete favorite section. Removing from updated data.");
-          delete updatedFormData.favorite; // Exclude favorite if not completely filled
-        }
-      }
-
-       // Check and update isProfileComplete
-      if (user && !user.isProfileComplete) {
-        const allFieldsFilled = requiredFields.every((field) => formData[field]);
-        if (allFieldsFilled) {
-          updatedFormData.isProfileComplete = true;
-        }
-      } 
-
+          console.log("UPDATED FORM DATA:", updatedFormData);
       // Call the update API
       const result = await updateTextFields(updatedFormData);
+      console.log("UpdateResults:", result)
 
       if (result.success) {
         console.log("Profile updated successfully");

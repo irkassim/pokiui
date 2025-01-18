@@ -11,7 +11,7 @@ interface Message {
 
 interface MessagesState {
   messages: Message[];
-  newMessages:Message[];
+  
   recipientName: string;
   recipientId: string;
   lastMessage:Message[];
@@ -22,7 +22,6 @@ interface MessagesState {
 
 const initialState: MessagesState = {
   messages: [],
-  newMessages: [],
   lastMessage:[],
   recipientName: '',
   recipientId:"",
@@ -42,13 +41,13 @@ export const fetchMessages = createAsyncThunk(
   async (payload: FetchMessagesPayload, { rejectWithValue }) => {
     const { userId, conversationId } = payload;
     try {
-      console.log("get Messages:", userId)
+      //console.log("get Messages:", userId)
       let type="message"
       const accessToken = localStorage.getItem('accessToken');
       //const refreshToken = localStorage.getItem('refreshToken');
+     const url = `http://localhost:5000/api/message/conversation/${userId}?use=${conversationId}&type=${type}`
       const response = await axios.get(
-        `http://localhost:5000/api/message/conversation/${userId}?use=${conversationId}&type=${type}`,
-       
+        url,
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       return response.data;
@@ -66,7 +65,7 @@ export const sendMessage = createAsyncThunk(
     { userId, content }: { userId: string; content: string },
     { rejectWithValue }
   ) => {
-    console.log("Sending Message:", userId, content)
+    //console.log("Sending Message:", userId, content)
     //let recipient=""
     try {
       const accessToken = localStorage.getItem('accessToken');
@@ -92,10 +91,10 @@ const messagesSlice = createSlice({
       state.messages = action.payload;
       state.loading = false;
     },
-    setNewMessages(state, action: PayloadAction<Message[]>) {
+   /*  setNewMessages(state, action: PayloadAction<Message[]>) {
       state.newMessages = action.payload;
       state.loading = false;
-    },
+    }, */
     clearMessages(state) {
       state.messages = [];
       state.recipientName = '';
@@ -122,14 +121,7 @@ const messagesSlice = createSlice({
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.loading = false;
-
-        if(state.fetchNew){
-          console.log("Fetching new")
-          state.newMessages = action.payload.messages || [];
-          state.fetchNew=false;
-        }else{
-          state.messages = action.payload.messages || [];
-        }
+        state.messages = action.payload.messages || [];
        
         state.recipientId = action.payload.userId;
         // Automatically set the last message
@@ -164,5 +156,5 @@ const messagesSlice = createSlice({
 });
 
 export const { setMessages, clearMessages,setRecipientName, setLoading,
-  setFetchNew, setNewMessages, setRecipientId } = messagesSlice.actions;
+  setFetchNew,  setRecipientId } = messagesSlice.actions;
 export default messagesSlice.reducer;

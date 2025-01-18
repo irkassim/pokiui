@@ -4,6 +4,7 @@ import userReducer from './slices/userSlice';
 import matchesReducer from './slices/matchSlice';
 import pokesReducer from './slices/pokeSlice';
 import messagesReducer from './slices/messageSlice';
+import peopleReducer from "./slices/peopleSlice"
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     matches: matchesReducer,
     pokes: pokesReducer,
     messages: messagesReducer,
+    people: peopleReducer, // Add people slice
   },
 });
 

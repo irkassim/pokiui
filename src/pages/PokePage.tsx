@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../reduxstore/store'; // Import AppDispatch
 import { RootState } from '../reduxstore/store'; // Assuming you have a RootState type for your Redux st
 import axios from 'axios';
+import { motion, PanInfo } from 'framer-motion';
 
 const PokePage: React.FC = () => {
   const { id: userId } = useParams(); // Extract userId from the route
@@ -71,15 +72,48 @@ const PokePage: React.FC = () => {
     const sendRes=  dispatch(rejectPoke(pokeId));
     console.log("Poke Accepted Success:", sendRes)
   };
+   const handleDragEnd = (_: any, info: PanInfo, userId: number) => {
+      console.log('Drag ended:', userId, info.offset.x > 0 ? 'right' : 'left');
+    };
 
   if (!user) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
       <h1 className="text-3xl font-bold mb-4">{user.firstName}'s Poke</h1>
-      <div className="w-80 h-96 bg-white shadow-lg rounded-lg flex flex-col items-center justify-center mb-6">
-        <img src={avatar} alt={user.firstName} className="w-32 h-32 rounded-full mb-4" />
-        <p className="text-lg">{user.bio || 'No bio available'}</p>
+      
+        {/* <img src={avatar} alt={user.firstName} className="w-32 h-32 rounded-full mb-4" /> */}
+
+        {/* <p className="text-lg">{user.bio || 'No bio available'}</p> */}
+
+        <div className="relative w-full flex flex-col items-center" style={{ height: '500px' }}>
+                  <motion.div
+                    key={user?._id}
+                    className="w-72 h-96 bg-white shadow-lg rounded-lg flex flex-col items-center justify-center overflow-hidden absolute"
+                    style={{ zIndex: 10 }}
+                    drag="x"
+                    onDragEnd={(event, info) => handleDragEnd(event, info, user?._id)}
+                    initial={{ scale: 1 }}
+                    animate={{ scale: 1 }}
+                    whileDrag={{ scale: 1.05 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <img
+                      src={avatar}
+                      alt={user.firstName}
+                      loading="lazy" // Lazy load images
+                      className="w-full h-2/3 object-cover"
+                    />
+                    <div className="p-4 text-center">
+                      <h2 className="text-xl font-semibold">{user.firstName}</h2>
+                      <p className="text-sm text-gray-600">{user.bio}</p>
+                    </div>
+                  </motion.div>
+                
+        
+                {/* Infinite Scroll Trigger */}
+               
+             
         <div className="flex justify-around w-full mt-4">
           <button
             onClick={handleAcceptPoke}

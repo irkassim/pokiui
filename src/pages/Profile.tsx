@@ -7,7 +7,7 @@ import {useFetchUser} from '../hooks/useFetch';
 import { useUsersContext } from '../context/UsersContext';
 //import {ImageSlot } from '../types/ImageSlot'
 //import  LocationModal from '../components/LocationModal'; 
-import  GeneralModal from '../components/GeneralModal'; 
+//import  GeneralModal from '../components/GeneralModal'; 
 
 const ProfilePage: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined); 

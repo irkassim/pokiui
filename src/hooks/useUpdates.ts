@@ -14,10 +14,12 @@ import {UploadResponse } from '../types/ImageSlot'
 
 const useUpdates = (accessToken: string | null, refreshToken: string | null) => {
   const updateTextFields = async (updates: any): Promise<{ success: boolean }> => {
+
+    //console.log("USEUPDATES:", updates)
     try {
       const response = await axios.put(
         'http://localhost:5000/api/profile/update-text',
-        updates,
+        {updates, refreshToken},
         {
           headers: {
             'Content-Type': 'application/json',

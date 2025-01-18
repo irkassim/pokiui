@@ -105,6 +105,17 @@ button:hover {
 }
 
 
+/* Ensure the div or p tag content wraps or truncates properly */
+.text-container {
+  max-width: 100%; /* Set max width to the parent container */
+  word-wrap: break-word; /* Break long words */
+  overflow: hidden; /* Hide overflowing content */
+  text-overflow: ellipsis; /* Add ellipsis for truncated text */
+  white-space: pre-wrap; /* Preserve newlines and wrap text */
+}
+
+
+
 /* Tailwind Utility Classes in JSX  for profilepage*/
 .text-lg {
   font-size: 1.125rem;
