@@ -7,6 +7,13 @@ interface UserProfile {
   lastName: string;
   email: string;
   avatar?: string;
+  userPreferences:{
+    maxDistance:number,
+    ageRange:{
+      max:number|null
+      min:number|null
+    }
+  }
 }
 
 

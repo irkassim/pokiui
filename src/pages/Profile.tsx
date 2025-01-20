@@ -130,6 +130,16 @@ const ProfilePage: React.FC = () => {
      
     </div>)}
 
+    <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
+      <h2 className="text-xl font-bold mb-2">  Comapatibility test</h2>
+      <p>Answer these questions to find to help us find you the best match 😊 </p>
+      
+      <button className="bg-blue-500 text-white py-2 px-4 rounded-lg mt-4"
+       onClick={()=>navigate("/questions")}>
+      start
+      </button>
+    </div> 
+
     {/* Memories Section */}
    {/*  <div className="w-full relative z-0 max-w-lg bg-white shadow-lg rounded-lg p-6 mt-6">
       <h2 className="text-xl font-bold mb-2">Memories</h2>

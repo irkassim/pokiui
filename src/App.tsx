@@ -16,6 +16,8 @@ import UserPage from './pages/Userpage';
 import MatchPage from './pages/MatchPage';
 import PokePage from './pages/PokePage';
 import MessagesPage from './pages/MessagesPage';
+import QuestionsPage from './pages/QuestionsPage';
+
 
 
 const App = () => {
@@ -71,6 +73,14 @@ const App = () => {
            <MessagesPage />
         </ProtectedRoute>
         } />
+
+        <Route path="/questions" element={
+        <ProtectedRoute>
+           <QuestionsPage />
+        </ProtectedRoute>
+        } />
+
+
 
        </Route>  
 

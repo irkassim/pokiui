@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchPeople, resetPeople } from '../reduxstore/slices/peopleSlice';
 import { RootState, AppDispatch } from '../reduxstore/store';
-import { FaBolt, FaMapMarkerAlt, FaUndo, FaHeart, FaTimes } from "react-icons/fa";
+import { FaBolt, FaMapMarkerAlt, FaUndo, FaHeart, FaTimes, FaHandPointRight, FaTelegramPlane } from "react-icons/fa";
 import CustomTinderCard from '../components/TinderCard'; // Custom TinderCard component
 import { fetchUserProfile } from '../reduxstore/slices/userSlice';
 
@@ -20,30 +20,40 @@ const People: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const observerRef = useRef<HTMLDivElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { users, currentPage, totalPages, loading, currentUser } = useSelector((state: RootState) => ({
+  const { users, currentPage, totalPages, loading, } = useSelector((state: RootState) => ({
     ...state.people,
-    currentUser: state.user.user,
+    //currentUser: state.user.user,
   }));
-  
-   // Dispatch fetchUserProfile on app load
-    useEffect(() => { 
-  if(!currentUser){
-    dispatch(fetchUserProfile()as any);
-  }
-  }, [dispatch, currentUser]);
 
+  useSelector( (state: RootState) =>
+    state.people);
+ const currentUser = useSelector((state: RootState) => state.user.user);
+  
+    // Dispatch fetchUserProfile on app load
+    useEffect(() => { 
+      if (!currentUser) {
+        dispatch(fetchUserProfile() as any);
+      }
+  
+  }, [dispatch, currentUser]);
+ 
   //UserParams
   const latitude= 5.7297233
   const longitude=  -0.1847117
-  const userId ='67701844641eec415b9d7142'
+  const userId =currentUser?.user?._id
 
-  currentUser && console.log("CurrentUserPeople:", currentUser)
+  currentUser && console.log("CurrentUserPeople:", currentUser, currentUser.user?.userPreferences.maxDistance,
+    currentUser.user?.userPreferences.ageRange, currentUser.user?._id )
 
   users && console.log("The Users", users)
   // Fetch users on mount
   useEffect(() => {
-    dispatch(resetPeople()); // Reset state when visiting this page
-    dispatch(fetchPeople({ userId, latitude, longitude, page: currentPage }));
+    if (userId && latitude && longitude) {
+      dispatch(resetPeople()); // Reset state when visiting this page
+      dispatch(fetchPeople({ userId, latitude, longitude, page: currentPage }));
+    } else {
+      console.error('Missing required parameters: userId, latitude, or longitude');
+    }
   }, [dispatch, userId, latitude, longitude, currentPage]);
 
   // Infinite scrolling
@@ -51,7 +61,7 @@ const People: React.FC = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && currentPage < totalPages && !loading) {
-          dispatch(fetchPeople({ userId, latitude, longitude, page: currentPage + 1 }));
+          userId &&  dispatch(fetchPeople({ userId, latitude, longitude, page: currentPage + 1 }));
         }
       },
       { threshold: 1.0 }
@@ -114,9 +124,12 @@ const People: React.FC = () => {
 
         <button className="bg-yellow-500 p-4 rounded-full text-white"><FaBolt size={24} /></button>
 
-        <button className="bg-blue-500 p-4 rounded-full text-white"><FaHeart size={24} /></button>
+        <button className="bg-orange-500 p-4 rounded-full text-white"><FaHandPointRight size={24} />Poke</button>
 
-        <button className="bg-green-500 p-4 rounded-full text-white"><FaMapMarkerAlt size={24} /></button>
+        <button className="bg-green-500 p-4 rounded-full text-white"><FaHeart size={24} /></button>
+        <button className="bg-blue-500 p-4 rounded-full text-white"><FaTelegramPlane size={24} /></button>
+
+        <button className="bg-indigo-500 p-4 rounded-full text-white"><FaMapMarkerAlt size={24} /></button>
       </div>
 
       {loading && <p>Loading more users...</p>}
